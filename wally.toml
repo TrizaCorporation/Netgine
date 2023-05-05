@@ -1,6 +1,7 @@
 [package]
 name = "trizacorporation/netter"
-version = "0.0.1"
+description = "A Simple Networking Framework for games by T:Riza"
+version = "0.0.1-alpha.1"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 
