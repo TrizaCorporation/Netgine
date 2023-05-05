@@ -19,6 +19,12 @@ function Server:WrapRemoteEvent(event: RemoteEvent)
     return WrappedEvent
 end
 
+function Server:WrapRemoteFunction(func: RemoteFunction)
+    local WrappedFunc = RemoteEventWrapper:Wrap(func, self.Middleware)
+    table.insert(self._events, WrappedFunc)
+    return WrappedFunc
+end
+
 function Server:DispatchGlobalMiddlewareChange(middleware: Types.Middleware)
     self.Middleware = middleware
     for _, event in self._events do
