@@ -5,7 +5,7 @@ export type Middleware = {
     Outbound: {
         [number]: (...any) -> nil
     }?,
-    RateLimit: number
+    RequestsPerMinute: number?
 }
 
 export type ConnectionCallback = (...any) -> any

@@ -20,10 +20,21 @@ function RemoteFunctionWrapper:Wrap(func: RemoteFunction, middleware: Types.Midd
     self.Func = func or Instance.new("RemoteFunction")
     self._environment = RunService:IsServer() and "Server" or "Client"
     self._connections = {}
+    self._rateLimits = {}
+    self._rateLimiterThread = coroutine.create(function()
+        while task.wait(60) do
+            if not self.Middleware or not self.Middleware.RequestsPerMinute then continue end
+            for _, player in self._rateLimits do
+                self._rateLimits[player] = middleware.RequestsPerMinute
+            end
+        end
+    end)
 
     self.Func[self._environment == "Server" and "OnServerInvoke" or "OnClientInvoke"] = function(...)
         return self:HandleRequest(RequestType.Inbound, ...)
     end
+
+    coroutine.resume(self._rateLimiterThread)
 end
 
 function RemoteFunctionWrapper:Connect(callback: Types.ConnectionCallback)
@@ -42,9 +53,22 @@ function RemoteFunctionWrapper:HandleRequest(type: EnumItem, ...)
             end
         end
     elseif type == RequestType.Inbound then
-        if Middleware and Middleware.Inbound then
-            for _, callback in Middleware.Inbound do
-                task.spawn(callback, table.unpack(Args))
+        if Middleware then
+            if Middleware.RequestsPerMinute then
+                if not self._rateLimits[Args[2]] then
+                    self._rateLimits[Args[2]] = Middleware.RequestsPerMinute
+                else
+                    self._rateLimits[Args[2]] -= 1
+                end
+
+                if self._rateLimits[Args[2]] <= 0 then
+                    return "Rate Limit Reached"
+                end
+            end
+            if Middleware.Inbound then
+                for _, callback in Middleware.Inbound do
+                    task.spawn(callback, table.unpack(Args))
+                end
             end
         end
 
