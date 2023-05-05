@@ -120,4 +120,16 @@ function RemoteEventWrapper:FireFilter(filter: (player: Player) -> boolean, ...)
     Promise.all(FirePromises):await()
 end
 
+function RemoteEventWrapper:FireAll(...)
+    assert(self._environment == "Server", "RemoteEventWrapper:FireFilter() can only be called on the server.")
+    local Args = {...}
+    local ClonedArgs = table.clone(Args)
+
+    table.insert(ClonedArgs, 1, Players:GetPlayers())
+
+    self.Event:FireAllClients(...)
+
+    self:HandleRequest(RequestType.Outbound, table.unpack(ClonedArgs))
+end
+
 return RemoteEventWrapper
