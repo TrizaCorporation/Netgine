@@ -144,7 +144,7 @@ function RemoteFunctionWrapper:InvokeFilter(filter: (player: Player) -> boolean,
     local Args = {...}
     local ClonedArgs = table.clone(Args)
 
-    local ValidPlayers: {[number]: Player}
+    local ValidPlayers: {[number]: Player} = {}
 
     for _, player in Players:GetPlayers() do
         if filter(player) then
