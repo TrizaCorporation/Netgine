@@ -35,5 +35,5 @@ jobs:
           url: 'https://infra.triza.dev/api/v1/roblox/groups/5598032/upload-model/${{secrets.MODULE_ID}}'
           data: "{'key': '${{secrets.KEY}}'}"
           method: POST
-          contentType: multipart/form-data
+          contentType: application/x-www-form-urlencoded
           files: '{"file": "Build.rbxm"}'  
