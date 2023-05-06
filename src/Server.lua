@@ -1,5 +1,6 @@
 local Types = require(script.Parent.Dependencies.Types)
 local RemoteEventWrapper = require(script.Parent.Dependencies.RemoteEventWrapper)
+local RemoteFunctionWrapper = require(script.Parent.Dependencies.RemoteFunctionWrapper)
 local RemotePropertyHelper = require(script.Parent.Dependencies.RemotePropertyHelper)
 
 local Server = {}
@@ -20,7 +21,7 @@ function Server:WrapRemoteEvent(event: RemoteEvent)
 end
 
 function Server:WrapRemoteFunction(func: RemoteFunction)
-    local WrappedFunc = RemoteEventWrapper:Wrap(func, self.Middleware)
+    local WrappedFunc = RemoteFunctionWrapper:Wrap(func, self.Middleware)
     table.insert(self._events, WrappedFunc)
     return WrappedFunc
 end
@@ -37,7 +38,7 @@ function Server:CreateRemoteProperty(initialValue: any, folder: Folder?)
 
     table.insert(self._remoteProperties, RemoteProperty)
 
-    return RemoteEventWrapper
+    return RemoteProperty
 end
 
 return Server

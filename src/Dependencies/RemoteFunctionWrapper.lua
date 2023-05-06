@@ -13,7 +13,7 @@ local RequestType = EnumHelper:MakeEnum("RemoteFunctionWrapper.RequestType", {
 local RemoteFunctionWrapper = {}
 RemoteFunctionWrapper.__index = RemoteFunctionWrapper
 
-function RemoteFunctionWrapper:Wrap(func: RemoteFunction, middleware: Types.Middleware)
+function RemoteFunctionWrapper:Wrap(func: RemoteFunction, middleware: Types.Middleware?)
     local self = setmetatable({}, RemoteFunctionWrapper)
     
     self.Middleware = middleware
@@ -25,7 +25,7 @@ function RemoteFunctionWrapper:Wrap(func: RemoteFunction, middleware: Types.Midd
         while task.wait(60) do
             if not self.Middleware or not self.Middleware.RequestsPerMinute then continue end
             for _, player in self._rateLimits do
-                self._rateLimits[player] = middleware.RequestsPerMinute
+                self._rateLimits[player] = self.Middleware.RequestsPerMinute
             end
         end
     end)
