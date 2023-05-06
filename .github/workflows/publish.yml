@@ -28,7 +28,7 @@ jobs:
         run: |
           mv ./src/wally.toml ./
           wally install
-          rojo build -o Build.rbxm .github/module-deploy.project.json
+          rojo build -o Build.rbxm ./module-deploy.project.json
       - name: Publish To Roblox
         uses: fjogeleit/http-request-action@v1
         with:
