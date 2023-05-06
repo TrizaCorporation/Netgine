@@ -3,7 +3,7 @@ local RunService = game:GetService("RunService")
 local Types = require(script.Parent.Types)
 local EnumHelper = require(script.Parent.EnumHelper)
 local Connection = require(script.Parent.Connection)
-local Promise = require(script.Parent.Parent.Packages.Promise)
+local Promise = require(script.Parent.Parent:FindFirstChild("Packages") and script.Parent.Parent.Packages.Promise or script.Parent.Parent.Parent.Promise)
 
 local RequestType = EnumHelper:MakeEnum("RemoteFunctionWrapper.RequestType", {
     "Outbound",
@@ -35,6 +35,7 @@ function RemoteFunctionWrapper:Wrap(func: RemoteFunction, middleware: Types.Midd
     end
 
     coroutine.resume(self._rateLimiterThread)
+    return self
 end
 
 function RemoteFunctionWrapper:Connect(callback: Types.ConnectionCallback)

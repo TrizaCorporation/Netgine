@@ -3,7 +3,7 @@ local RunService = game:GetService("RunService")
 local Types = require(script.Parent.Types)
 local EnumHelper = require(script.Parent.EnumHelper)
 local Connection = require(script.Parent.Connection)
-local Promise = require(script.Parent.Parent.Packages.Promise)
+local Promise = require(script.Parent.Parent:FindFirstChild("Packages") and script.Parent.Parent.Packages.Promise or script.Parent.Parent.Parent.Promise)
 
 local RequestType = EnumHelper:MakeEnum("RemoteEventWrapper.RequestType", {
     "Outbound",
@@ -20,10 +20,19 @@ function RemoteEventWrapper:Wrap(event: RemoteEvent, middleware: Types.Middlewar
     self.Event = event or Instance.new("RemoteEvent")
     self._environment = RunService:IsServer() and "Server" or "Client"
     self._connections = {}
+    self._rateLimiterThread = coroutine.create(function()
+        while task.wait(60) do
+            if not self.Middleware or not self.Middleware.RequestsPerMinute then continue end
+            for _, player in self._rateLimits do
+                self._rateLimits[player] = middleware.RequestsPerMinute
+            end
+        end
+    end)
 
     self.Event[self._environment == "Server" and "OnServerEvent" or "OnClientEvent"]:Connect(function(...)
         self:HandleRequest(RequestType.Inbound, ...)
     end)
+    coroutine.resume(self._rateLimiterThread)
 
     return self
 end
@@ -44,9 +53,22 @@ function RemoteEventWrapper:HandleRequest(type: EnumItem, ...)
             end
         end
     elseif type == RequestType.Inbound then
-        if Middleware and Middleware.Inbound then
-            for _, callback in Middleware.Inbound do
-                task.spawn(callback, table.unpack(Args))
+        if Middleware then
+            if Middleware.RequestsPerMinute then
+                if not self._rateLimits[Args[2]] then
+                    self._rateLimits[Args[2]] = Middleware.RequestsPerMinute
+                else
+                    self._rateLimits[Args[2]] -= 1
+                end
+
+                if self._rateLimits[Args[2]] <= 0 then
+                    return "Rate Limit Reached"
+                end
+            end
+            if Middleware.Inbound then
+                for _, callback in Middleware.Inbound do
+                    task.spawn(callback, table.unpack(Args))
+                end
             end
         end
 
