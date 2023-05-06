@@ -24,3 +24,16 @@ jobs:
           printf "[tokens]\n\"https://api.wally.run/\" = \"%s\"" "$WALLY_AUTH" >> ~/.wally/auth.toml
           wally publish
           cd ..
+      - name: Build File
+        run: |
+          mv ./src/wally.toml ./
+          wally install
+          rojo build -o Build.rbxm .github/module-deploy.project.json
+      - name: Publish To Roblox
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: 'https://infra.triza.dev/api/v1/roblox/groups/5598032/upload-model/${{secrets.MODULE_ID}}'
+          data: "{key: ${{secrets.KEY}}}"
+          method: POST
+          contentType: multipart/form-data
+          files: '{"file": "Build.rbxm"}'  

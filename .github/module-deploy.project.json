@@ -1,6 +1,9 @@
 {
-    "name": "Netter",
+    "name": "MainModule",
     "tree": {
-      "$path": "./src"
+      "$path": "./src",
+      "Packages": {
+        "$path": "Packages"
+      }
     }
   }
