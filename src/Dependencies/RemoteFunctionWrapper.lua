@@ -34,7 +34,10 @@ function RemoteFunctionWrapper:Wrap(func: RemoteFunction, middleware: Types.Midd
         return self:HandleRequest(RequestType.Inbound, ...)
     end
 
-    coroutine.resume(self._rateLimiterThread)
+    if self._environment == "Server" then
+        coroutine.resume(self._rateLimiterThread)
+    end
+    
     return self
 end
 
@@ -45,12 +48,13 @@ end
 
 function RemoteFunctionWrapper:HandleRequest(type: EnumItem, ...)
     local Args = {...}
-    table.insert(Args, 1, self.Func.Name)
+    local ClonedArgs = table.clone(Args)
+    table.insert(ClonedArgs, 1, self.Func.Name)
     local Middleware = self.Middleware :: Types.Middleware
     if type == RequestType.Outbound then
         if Middleware and Middleware.Outbound then
             for _, callback in Middleware.Outbound do
-                task.spawn(callback, table.unpack(Args))
+                task.spawn(callback, table.unpack(ClonedArgs))
             end
         end
     elseif type == RequestType.Inbound then
@@ -68,7 +72,7 @@ function RemoteFunctionWrapper:HandleRequest(type: EnumItem, ...)
             end
             if Middleware.Inbound then
                 for _, callback in Middleware.Inbound do
-                    task.spawn(callback, table.unpack(Args))
+                    task.spawn(callback, table.unpack(ClonedArgs))
                 end
             end
         end
@@ -81,6 +85,7 @@ function RemoteFunctionWrapper:HandleRequest(type: EnumItem, ...)
                 table.insert(ResponsePromises, Promise.new(function(resolve)
                     local Response = connection._callback(table.unpack(Args))
                     table.insert(Responses, Response)
+                    resolve()
                 end))
             else
                 table.remove(self._connections, i)

@@ -32,7 +32,10 @@ function RemoteEventWrapper:Wrap(event: RemoteEvent, middleware: Types.Middlewar
     self.Event[self._environment == "Server" and "OnServerEvent" or "OnClientEvent"]:Connect(function(...)
         self:HandleRequest(RequestType.Inbound, ...)
     end)
-    coroutine.resume(self._rateLimiterThread)
+
+    if self._environment == "Server" then
+        coroutine.resume(self._rateLimiterThread)
+    end
 
     return self
 end

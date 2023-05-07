@@ -30,10 +30,10 @@ function RemoteProperty.new(initialValue: any, folder: Folder?)
     self._initialValue = initialValue
 
     if self._environment == "Client" then
-        self._event:Connect(function(_player, ...)
+        self._event:Connect(function(...)
             for i, observer in self._observers do
                 if observer._callback then
-                    task.spawn(self._callback, ...)
+                    task.spawn(observer._callback, ...)
                 else
                     table.remove(self._observers, i)
                 end
