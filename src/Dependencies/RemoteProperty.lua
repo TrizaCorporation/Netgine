@@ -73,7 +73,7 @@ end
 function RemoteProperty:GetFor(userId: number)
     if self._environment == "Server" then
         if not self._values[userId] then
-            self._values[userId] = self._initialValue
+            self:SetFor(userId, self._initialValue)
         end
         return self._values[userId]
     elseif self._environment == "Client" then
@@ -110,7 +110,13 @@ end
 function RemoteProperty:Observe(callback: () -> nil)
     assert(self._environment == "Client", "RemoteProperty:Observe() can only be called on the client.")
 
-    table.insert(self._observers, Connection.new(callback))
+    local Observer = Connection.new(callback)
+
+    task.defer(function()
+        Observer._callback(self:Get())
+    end)
+
+    table.insert(self._observers, Observer)
 end
 
 return RemoteProperty
