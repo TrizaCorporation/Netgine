@@ -1,5 +1,5 @@
 [package]
-name = "trizacorporation/netter"
+name = "trizacorporation/netgine"
 description = "A Simple Networking Framework for games by T:Riza"
 version = "0.0.1-alpha.7"
 registry = "https://github.com/UpliftGames/wally-index"
