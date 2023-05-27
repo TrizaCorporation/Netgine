@@ -115,7 +115,7 @@ function RemoteProperty:Observe(callback: () -> nil)
 
     local Observer = Connection.new(callback)
 
-    task.defer(function()
+    task.spawn(function()
         Observer._callback(self:Get())
     end)
 
