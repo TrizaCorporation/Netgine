@@ -14,7 +14,7 @@ local RemoteFunctionWrapper = {}
 RemoteFunctionWrapper.__index = RemoteFunctionWrapper
 
 function RemoteFunctionWrapper:Wrap(func: RemoteFunction, middleware: Types.Middleware?)
-    local self = setmetatable({}, RemoteFunctionWrapper)
+    self = setmetatable({}, RemoteFunctionWrapper)
     
     self.Middleware = middleware
     self.Func = func or Instance.new("RemoteFunction")

@@ -14,7 +14,7 @@ local RemoteEventWrapper = {}
 RemoteEventWrapper.__index = RemoteEventWrapper
 
 function RemoteEventWrapper:Wrap(event: RemoteEvent, middleware: Types.Middleware?)
-    local self = setmetatable({}, RemoteEventWrapper)
+    self = setmetatable({}, RemoteEventWrapper)
     
     self.Middleware = middleware
     self.Event = event or Instance.new("RemoteEvent")
